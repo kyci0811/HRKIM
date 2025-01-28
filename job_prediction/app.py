@@ -21,11 +21,27 @@ st.sidebar.markdown("""
 
 # 데이터 로드 및 전처리 함수
 @st.cache_data
-def load_and_prepare_data():
+def load_and_prepare_data(filepath=None):
     try:
-        # 내장된 데이터셋 사용
-        df = pd.read_csv('job_prediction/path_dataset.csv', encoding='utf-8')
+        if filepath is None:
+            # 내장된 데이터셋 사용
+            df = pd.read_csv('path_dataset.csv', encoding='utf-8')
+        else:
+            # 사용자가 업로드한 파일 사용
+            for encoding in ['utf-8', 'cp949', 'euc-kr']:
+                try:
+                    df = pd.read_csv(filepath, encoding=encoding, sep=None, engine='python')
+                    if not df.empty:
+                        break
+                except UnicodeDecodeError:
+                    continue
+                except Exception as e:
+                    continue
         
+        if df.empty:
+            st.error("데이터를 읽을 수 없습니다. CSV 파일 형식을 확인해주세요.")
+            return [], []
+            
         # 직무 경로를 하나의 문자열로 결합
         df['career_path'] = df.iloc[:, 1:].apply(
             lambda x: ','.join([str(pos) for pos in x if pd.notna(pos) and str(pos).strip()]), axis=1
@@ -168,11 +184,52 @@ st.title('🎯 **직무 경로 예측기**')
 st.markdown("""
     현재까지의 직무 경로를 선택하면 다음 직무를 예측해드립니다.
     
-    기본 데이터셋이 내장되어 있으며, 원하시는 경우 사이드바에서 새로운 데이터를 업로드할 수 있습니다.
+    ### 📊 데이터셋 안내
+    1. **기본 데이터셋**: 시스템에 내장된 직무 경로 데이터로 분석이 진행됩니다.
+    2. **사용자 데이터 업로드**: 아래 양식을 다운로드하여 작성 후 사이드바에서 업로드해주세요.
 """)
 
+# 빈 양식 CSV 생성
+empty_template = pd.DataFrame({
+    'Employee': [f'E{str(i).zfill(4)}' for i in range(1, 31)],  # E0001부터 E0030까지
+    '1차 이동': [''] * 30,
+    '2차 이동': [''] * 30,
+    '3차 이동': [''] * 30,
+    '4차 이동': [''] * 30
+})
+
+# BOM을 추가하여 Excel에서도 한글이 정상적으로 표시되도록 함
+def get_csv_download_data(df):
+    return '\ufeff' + df.to_csv(index=False, encoding='utf-8')
+
+# 양식 다운로드 버튼
+st.download_button(
+    label="📥 직무 경로 입력 양식 다운로드",
+    data=get_csv_download_data(empty_template),
+    file_name='job_prediction_template.csv',
+    mime='text/csv',
+)
+
+st.markdown("""
+    ### 📝 CSV 파일 구조
+    - **열 구성**: Employee, 1차 이동, 2차 이동, 3차 이동, 4차 이동 직무
+    - **입력 예시**: 
+        - Employee: E0001
+        - 1차 이동: Sales Rep
+        - 2차 이동: Account Manager
+        - 3차 이동: Sales Lead
+        - 4차 이동: (비어있을 수 있음)
+    - **주의사항**: 
+        - 각 직무는 순차적으로 입력
+        - 빈 칸은 비워두기 가능
+        - 직무명은 정확하게 입력
+""")
+
+# 파일 업로드 (선택사항)
+uploaded_file = st.sidebar.file_uploader("사용자 데이터 파일 업로드 (CSV, 선택사항)", type="csv")
+
 # 데이터 로드
-career_paths, unique_positions = load_and_prepare_data()
+career_paths, unique_positions = load_and_prepare_data(uploaded_file)
 
 if not career_paths:
     st.stop()

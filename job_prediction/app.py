@@ -21,27 +21,11 @@ st.sidebar.markdown("""
 
 # 데이터 로드 및 전처리 함수
 @st.cache_data
-def load_and_prepare_data(filepath=None):
+def load_and_prepare_data():
     try:
-        if filepath is None:
-            # 내장된 데이터셋 사용
-            df = pd.read_csv('path_dataset.csv', encoding='utf-8')
-        else:
-            # 사용자가 업로드한 파일 사용
-            for encoding in ['utf-8', 'cp949', 'euc-kr']:
-                try:
-                    df = pd.read_csv(filepath, encoding=encoding, sep=None, engine='python')
-                    if not df.empty:
-                        break
-                except UnicodeDecodeError:
-                    continue
-                except Exception as e:
-                    continue
+        # 내장된 데이터셋 사용
+        df = pd.read_csv('job_prediction/path_dataset.csv', encoding='utf-8')
         
-        if df.empty:
-            st.error("데이터를 읽을 수 없습니다. CSV 파일 형식을 확인해주세요.")
-            return [], []
-            
         # 직무 경로를 하나의 문자열로 결합
         df['career_path'] = df.iloc[:, 1:].apply(
             lambda x: ','.join([str(pos) for pos in x if pd.notna(pos) and str(pos).strip()]), axis=1
@@ -187,11 +171,8 @@ st.markdown("""
     기본 데이터셋이 내장되어 있으며, 원하시는 경우 사이드바에서 새로운 데이터를 업로드할 수 있습니다.
 """)
 
-# 파일 업로드 (선택사항)
-uploaded_file = st.sidebar.file_uploader("사용자 데이터 파일 업로드 (CSV, 선택사항)", type="csv")
-
 # 데이터 로드
-career_paths, unique_positions = load_and_prepare_data(uploaded_file)
+career_paths, unique_positions = load_and_prepare_data()
 
 if not career_paths:
     st.stop()

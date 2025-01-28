@@ -25,7 +25,7 @@ def load_and_prepare_data(filepath=None):
     try:
         if filepath is None:
             # 내장된 데이터셋 사용
-            df = pd.read_csv('path_dataset.csv', encoding='utf-8')
+            df = pd.read_csv('job_prediction/path_dataset.csv', encoding='utf-8')
         else:
             # 사용자가 업로드한 파일 사용
             for encoding in ['utf-8', 'cp949', 'euc-kr']:

@@ -1,6 +1,0 @@
-streamlit
-pandas
-mlxtend
-plotly
-networkx
-matplotlib

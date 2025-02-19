@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # 앱 제목
 st.title('🎯 직무 이동 경로 예측기')
@@ -91,13 +92,13 @@ if st.button('다음 직무 예측하기'):
                 st.write(f"**{pos}**: {probability:.1f}% ({count}건)")
 
             # 시각화
-            fig = px.bar(
-                x=next_pos_freq.index,
-                y=next_pos_freq.values,
-                labels={'x': '다음 직무', 'y': '빈도'},
-                title='다음 직무 예측 결과'
-            )
-            st.plotly_chart(fig)
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.barplot(x=next_pos_freq.index, y=next_pos_freq.values)
+            plt.xticks(rotation=45, ha='right')
+            plt.title('다음 직무 예측 결과')
+            plt.xlabel('다음 직무')
+            plt.ylabel('빈도')
+            st.pyplot(fig)
 
             # 전체 경로 예시 표시
             st.subheader('📋 유사 경로 예시')
@@ -117,13 +118,13 @@ with st.expander('📈 데이터 통계 보기'):
     position_counts = pd.concat([df[col] for col in ['1차 이동 직무', '2차 이동 직무', '3차 이동 직무', '4차 이동 직무']]).value_counts()
     
     # 상위 10개 직무 시각화
-    fig = px.bar(
-        x=position_counts.head(10).index,
-        y=position_counts.head(10).values,
-        labels={'x': '직무', 'y': '빈도'},
-        title='상위 10개 직무 빈도'
-    )
-    st.plotly_chart(fig)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x=position_counts.head(10).index, y=position_counts.head(10).values)
+    plt.xticks(rotation=45, ha='right')
+    plt.title('상위 10개 직무 빈도')
+    plt.xlabel('직무')
+    plt.ylabel('빈도')
+    st.pyplot(fig)
 
     # 단계별 직무 수
     st.subheader('단계별 직무 수')

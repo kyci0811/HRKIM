@@ -11,7 +11,11 @@ st.write('현재까지의 직무 경로를 입력하면 다음 직무를 예측�
 # 데이터 로드
 @st.cache_data
 def load_data():
-    df = pd.read_csv('path_dataset.csv')
+    # 현재 파일(app.py)의 디렉토리 경로 구하기
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # CSV 파일 경로 만들기 (app.py와 같은 폴더)
+    csv_path = os.path.join(current_dir, 'path_dataset.csv')
+    df = pd.read_csv(csv_path)
     return df
 
 df = load_data()

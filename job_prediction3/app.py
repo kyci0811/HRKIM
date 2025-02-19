@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -11,8 +12,12 @@ st.write('현재까지의 직무 경로를 입력하면 다음 직무를 예측�
 # 데이터 로드
 @st.cache_data
 def load_data():
-    # 현재 파일(app.py)의 디렉토리 경로 구하기
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    try:
+        # 현재 파일(app.py)의 디렉토리 경로 구하기
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        # __file__ 변수가 없는 경우 현재 작업 디렉토리 사용
+        current_dir = os.getcwd()
     # CSV 파일 경로 만들기 (app.py와 같은 폴더)
     csv_path = os.path.join(current_dir, 'path_dataset.csv')
     df = pd.read_csv(csv_path)
